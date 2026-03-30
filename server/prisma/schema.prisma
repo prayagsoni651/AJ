@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  phone     String   @unique
+  password  String
+  balance   Float    @default(0)
+  role      String   @default("USER") // USER or ADMIN
+  createdAt DateTime @default(now())
+  bets      Bet[]
+}
+
+model Bet {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  periodId    String
+  selection   String
+  amount      Float
+  status      String   @default("PENDING") // PENDING, WIN, LOSS
+  winAmount   Float    @default(0)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model GameRound {
+  id           Int      @id @default(autoincrement())
+  periodId     String   @unique
+  resultNumber Int
+  resultColor  String
+  size         String
+  createdAt    DateTime @default(now())
+}

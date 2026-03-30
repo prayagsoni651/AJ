@@ -1,0 +1,1402 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Wingo Game - Premium Betting</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      :root {
+        --bg-main: #0f101e;
+        --bg-panel: rgba(26, 28, 46, 0.7);
+        --text-main: #ffffff;
+        --text-muted: #8b95a5;
+        --primary: #4ade80;
+        --color-green: #10b981;
+        --color-violet: #8b5cf6;
+        --color-red: #ef4444;
+        --color-blue: #3b82f6;
+        --color-orange: #f97316;
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      }
+      
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+      
+      body {
+        background-color: var(--bg-main); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh;
+        background-image: radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15), transparent 25%), radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.15), transparent 25%); background-attachment: fixed;
+      }
+
+      .app-container {
+        width: 100%; max-width: 480px; background: rgba(15, 16, 30, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        min-height: 100vh; box-shadow: 0 0 40px rgba(0,0,0,0.5); position: relative; padding-bottom: 80px; display: flex; flex-direction: column; overflow-x: hidden;
+      }
+
+      .view-section { display: none; flex-direction: column; flex: 1; }
+      .view-section.active { display: flex; animation: fadeIn 0.3s ease; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+      /* Header */
+      .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+      .header h1 { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #fff, #a5b4fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
+      .icon-btn { background: rgba(255,255,255,0.05); border: none; color: var(--text-main); font-size: 18px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+      .icon-btn:hover { background: rgba(255,255,255,0.1); }
+
+      /* Cards & Content */
+      .content-area { padding: 16px; display: flex; flex-direction: column; gap: 16px; flex: 1; overflow-y: auto; }
+      .glass-card { background: var(--bg-panel); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; box-shadow: var(--glass-shadow); position: relative; overflow: hidden; }
+      
+      /* Inputs */
+      .input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; text-align: left; }
+      .input-group label { font-size: 14px; color: var(--text-muted); }
+      .input-group input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; color: white; font-size: 16px; outline: none; transition: all 0.3s; width: 100%; }
+      .input-group input:focus { border-color: var(--primary); background: rgba(0,0,0,0.5); }
+
+      /* Balance Area */
+      .balance-area { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2)); }
+      .balance-label { font-size: 14px; color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+      .balance-amount { font-size: 36px; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-bottom: 16px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+      .balance-actions { display: flex; gap: 12px; }
+      
+      /* Buttons */
+      .btn { flex: 1; padding: 14px 0; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; color: white; width: 100%; }
+      .btn:active { transform: scale(0.96); }
+      .btn-primary { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+      .btn-secondary { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+      .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+      .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+      .btn-outline:hover { background: rgba(74, 222, 128, 0.1); }
+
+      /* Timer & Period Info */
+      .game-info-card { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
+      .period-info h3, .timer-area h3 { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+      .period-number { font-size: 18px; font-weight: 700; color: var(--text-main); }
+      .timer-area { text-align: right; }
+      .timer-display { font-size: 24px; font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; text-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
+
+      /* Betting Options */
+      .bet-colors { display: flex; gap: 10px; margin-bottom: 16px; }
+      .color-btn { flex: 1; padding: 16px 0; border: none; border-radius: 14px; font-size: 15px; font-weight: 700; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.3s; position: relative; overflow: hidden; }
+      .color-btn.green { background: var(--color-green); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+      .color-btn.violet { background: var(--color-violet); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+      .color-btn.red { background: var(--color-red); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+
+      .number-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+      .num-btn { aspect-ratio: 1; border-radius: 50%; border: none; font-size: 20px; font-weight: 800; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s; }
+      .num-btn:active { transform: scale(0.9); }
+      .num-0 { background: linear-gradient(135deg, var(--color-red) 50%, var(--color-violet) 50%); }
+      .num-5 { background: linear-gradient(135deg, var(--color-green) 50%, var(--color-violet) 50%); }
+      .num-1, .num-3, .num-7, .num-9 { background: var(--color-green); }
+      .num-2, .num-4, .num-6, .num-8 { background: var(--color-red); }
+
+      .size-options { display: flex; gap: 12px; }
+      .size-btn { flex: 1; padding: 14px 0; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); border-radius: 12px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: center; }
+      .size-btn:hover { background: rgba(59, 130, 246, 0.2); border-color: var(--color-blue); }
+
+      /* Game Records Table */
+      .records-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+      .records-header h2 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+      .records-table { width: 100%; border-collapse: collapse; }
+      .records-table th { text-align: left; color: var(--text-muted); font-size: 12px; font-weight: 500; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .records-table td { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; color: rgba(255,255,255,0.9); }
+      .result-number { font-weight: 700; font-size: 16px; }
+      .result-green { color: var(--color-green); } .result-red { color: var(--color-red); } .result-violet { color: var(--color-violet); }
+      .dots { display: flex; gap: 4px; } .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+      /* Bottom Navigation */
+      .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: rgba(15, 16, 30, 0.95); backdrop-filter: blur(20px); display: none; justify-content: space-around; padding: 12px 0 20px; border-top: 1px solid var(--glass-border); z-index: 100; }
+      .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.3s; width: 60px; }
+      .nav-item i { font-size: 20px; transition: all 0.3s; }
+      .nav-item.active { color: var(--primary); }
+      .nav-item.active i { transform: translateY(-4px); text-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
+
+      /* Modals */
+      .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
+      .modal-overlay.show { display: flex; opacity: 1; }
+      .modal-content { background: var(--bg-main); width: 90%; max-width: 380px; border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: translateY(20px); transition: transform 0.3s; overflow: hidden; }
+      .modal-overlay.show .modal-content { transform: translateY(0); }
+      .modal-header { padding: 16px 20px; text-align: center; font-weight: 700; font-size: 18px; color: white; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .modal-body { padding: 20px; }
+      .modal-footer { display: flex; border-top: 1px solid rgba(255,255,255,0.05); }
+      .modal-btn { flex: 1; padding: 16px; border: none; background: transparent; color: white; font-weight: 600; font-size: 16px; cursor: pointer; transition: background 0.2s; }
+      .modal-btn.cancel { color: var(--text-muted); border-right: 1px solid rgba(255,255,255,0.05); }
+      .modal-btn.confirm { color: var(--primary); }
+      .modal-btn:hover { background: rgba(255,255,255,0.05); }
+      
+      /* Betting Modal Specifics */
+      .bet-amount-options { display: flex; gap: 8px; margin-bottom: 20px; }
+      .bet-amt-btn { flex: 1; padding: 10px 0; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 8px; color: white; cursor: pointer; transition: 0.2s; }
+      .bet-amt-btn.active { background: var(--primary); border-color: var(--primary); color: #0f101e; font-weight: bold; }
+      .qty-control { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 8px 16px; margin-bottom: 20px; }
+      .qty-btn { width: 32px; height: 32px; border-radius: 8px; border: none; background: rgba(255,255,255,0.1); color: white; font-size: 18px; cursor: pointer; }
+      .qty-value { font-size: 18px; font-weight: bold; }
+      .total-bet { display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: bold; color: var(--primary); }
+
+      /* User Profile Elements */
+      .avatar-wrapper { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--color-violet), var(--color-blue)); display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 16px; border: 3px solid var(--bg-main); box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+      .profile-info { text-align: center; margin-bottom: 24px; }
+      .profile-info h2 { font-size: 24px; margin-bottom: 4px; }
+      .profile-info p { color: var(--text-muted); font-size: 14px; }
+      .action-list { display: flex; flex-direction: column; gap: 8px; }
+      .action-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; cursor: pointer; transition: 0.2s; }
+      .action-item:hover { background: rgba(255,255,255,0.08); }
+      .action-item .left { display: flex; align-items: center; gap: 12px; font-size: 15px; }
+
+      /* Auth pages specific styles */
+      .auth-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+      .auth-card { width: 100%; padding: 30px 20px; background: rgba(26, 28, 46, 0.85); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--glass-shadow); text-align: center; }
+      .auth-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; background: linear-gradient(135deg, #fff, #a5b4fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+      .auth-subtitle { color: var(--text-muted); margin-bottom: 24px; font-size: 14px; }
+      .auth-links { display: flex; justify-content: space-between; margin-top: 16px; font-size: 14px; }
+      .auth-links a { color: var(--primary); text-decoration: none; cursor: pointer; }
+      .auth-links a:hover { text-decoration: underline; }
+
+      /* Toast notification */
+      .toast { position: fixed; top: 40px; left: 50%; transform: translateX(-50%) translateY(-20px); background: rgba(16, 185, 129, 0.95); color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 500; backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 2000; }
+      .toast.error { background: rgba(239, 68, 68, 0.95); }
+      .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+      /* Mobile optimization for Admin Tables */
+      @media screen and (max-width: 400px) {
+        .records-table th, .records-table td { padding: 10px 4px; font-size: 11px; }
+        .admin-stat-card { padding: 10px !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+
+    <div class="app-container">
+      
+      <!-- ================= VIEW: USER LOGIN ================= -->
+      <div id="view-user-login" class="view-section">
+        <header class="header">
+          <button class="icon-btn" onclick="switchView('view-home')"><i class="fa-solid fa-chevron-left"></i></button>
+          <h1>User Login</h1>
+          <div style="width: 36px;"></div> <!-- Spacer -->
+        </header>
+        <div class="auth-container">
+          <div class="auth-card">
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">Login with your credentials</p>
+            <div class="input-group">
+              <label>Mobile Number / Email</label>
+              <input type="text" id="loginMobile" placeholder="Enter mobile or email" value="9876543210">
+            </div>
+            <div class="input-group">
+              <label>Password</label>
+              <input type="password" id="loginPassword" placeholder="Enter your password" value="password123">
+            </div>
+            <button class="btn btn-primary" style="margin-top: 20px;" onclick="loginUser()">Login to Play</button>
+            <button class="btn btn-secondary" style="margin-top: 12px;" onclick="switchView('view-user-register')">Register New Account</button>
+            <div class="auth-links" style="justify-content: center; margin-top: 16px;">
+              <a onclick="switchView('view-admin-login')" style="color: var(--text-muted)">Admin Portal</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= VIEW: USER REGISTER ================= -->
+      <div id="view-user-register" class="view-section">
+        <header class="header">
+          <button class="icon-btn" onclick="switchView('view-home')"><i class="fa-solid fa-chevron-left"></i></button>
+          <h1>Create Account</h1>
+          <div style="width: 36px;"></div> <!-- Spacer -->
+        </header>
+        <div class="auth-container" style="padding: 40px 20px;">
+          <div class="auth-card">
+            <h1 class="auth-title">Create Account</h1>
+            <p class="auth-subtitle">Join the premium betting experience</p>
+            <div class="input-group">
+              <label>Full Name</label>
+              <input type="text" id="regName" placeholder="Enter full name">
+            </div>
+            <div class="input-group">
+              <label>Email ID (Login ID)</label>
+              <input type="email" id="regEmail" placeholder="Enter email address">
+            </div>
+            <div class="input-group">
+              <label>Mobile Number</label>
+              <input type="tel" id="regPhone" placeholder="Enter mobile number">
+            </div>
+            <div class="input-group">
+              <label>Bank Name</label>
+              <input type="text" id="regBankName" placeholder="e.g. HDFC Bank">
+            </div>
+            <div class="input-group">
+               <label>Bank Holder Name</label>
+               <input type="text" id="regBankHolder" placeholder="As per bank record">
+            </div>
+            <div class="input-group">
+              <label>IFSC Code</label>
+              <input type="text" id="regIFSC" placeholder="Enter IFSC code">
+            </div>
+            <div class="input-group">
+              <label>UPI Number / ID</label>
+              <input type="text" id="regUPI" placeholder="Enter UPI details">
+            </div>
+            <div class="input-group">
+              <label>Password</label>
+              <input type="password" id="regPassword" placeholder="Create password">
+            </div>
+            <button class="btn btn-secondary" style="margin-top: 20px;" onclick="initiateRegistration()">Register Now & Play</button>
+
+            <div class="auth-links" style="justify-content: center; margin-top: 20px;">
+              <span style="color: var(--text-muted)">Already have an account? </span>
+              <a onclick="switchView('view-user-login')" style="margin-left: 5px;">Login</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= VIEW: ADMIN LOGIN ================= -->
+      <div id="view-admin-login" class="view-section">
+        <header class="header">
+          <button class="icon-btn" onclick="switchView('view-home')"><i class="fa-solid fa-chevron-left"></i></button>
+          <h1>Admin Access</h1>
+          <div style="width: 36px;"></div> <!-- Spacer -->
+        </header>
+        <div class="auth-container">
+          <div class="auth-card" style="border-color: rgba(239, 68, 68, 0.5);">
+            <div style="font-size: 40px; color: var(--color-red); margin-bottom: 10px;"><i class="fa-solid fa-user-shield"></i></div>
+            <h1 class="auth-title">Admin Dashboard</h1>
+            <p class="auth-subtitle">Secure management portal</p>
+            <div class="input-group">
+              <label>Admin ID</label>
+              <input type="text" id="adminUsername" placeholder="Enter Admin ID" value="ajay@651">
+            </div>
+            <div class="input-group">
+              <label>Admin Password</label>
+              <input type="password" id="adminPassword" placeholder="Enter Admin Password" value="ajay@651">
+            </div>
+            <button class="btn btn-danger" style="margin-top: 20px;" onclick="loginAdmin()">Sign In to Console</button>
+            <button class="btn btn-secondary" style="margin-top: 12px;" onclick="switchView('view-user-register')">Create User Profile</button>
+            <div class="auth-links" style="justify-content: center; margin-top: 16px;">
+              <a onclick="switchView('view-user-login')" style="color: var(--text-muted)">User Payout Portal</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= VIEW: ADMIN DASHBOARD ================= -->
+      <div id="view-admin-dashboard" class="view-section">
+        <header class="header" style="background: linear-gradient(135deg, #1e1b4b, #450a0a); border-bottom: 2px solid var(--color-red);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="icon-btn" onclick="switchView('view-home')" style="background: rgba(255,255,255,0.1);"><i class="fa-solid fa-chevron-left"></i></button>
+            <div style="width: 35px; height: 35px; background: var(--color-red); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+              <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h1 style="font-size: 18px;">Admin Console</h1>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="icon-btn" style="background: rgba(16, 185, 129, 0.1); color: var(--primary);" onclick="switchView('view-wingo')">
+              <i class="fa-solid fa-gamepad"></i>
+            </button>
+            <button class="icon-btn" onclick="logoutUser()"><i class="fa-solid fa-power-off"></i></button>
+          </div>
+        </header>
+
+        <div class="content-area" style="padding: 12px;">
+          <!-- Stats Summary -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+            <div class="glass-card" style="padding: 12px; border-left: 4px solid var(--primary); display: flex; flex-direction: column; justify-content: center;">
+              <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Total Players</div>
+              <div style="font-size: 20px; font-weight: 800; margin-top: 4px;" id="adminTotalUsers">0</div>
+            </div>
+            <div class="glass-card" style="padding: 12px; border-left: 4px solid var(--color-blue); display: flex; flex-direction: column; justify-content: center;">
+              <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Active (Online)</div>
+              <div style="font-size: 20px; font-weight: 800; margin-top: 4px; color: var(--primary);" id="adminActiveUsers">0</div>
+            </div>
+          </div>
+
+          <div class="glass-card" style="padding: 15px; margin-bottom: 16px; background: linear-gradient(145deg, rgba(16, 185, 129, 0.1), rgba(0,0,0,0));">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <div>
+                <div style="font-size: 11px; color: var(--text-muted);">Total Platform Revenue</div>
+                <div style="font-size: 24px; font-weight: 800; color: var(--primary);" id="adminRevenue">₹ 0.00</div>
+              </div>
+              <div style="width: 46px; height: 46px; background: rgba(16, 185, 129, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-sack-dollar" style="font-size: 24px; color: var(--primary);"></i>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: 11px; color: var(--text-muted);"><i class="fa-solid fa-clock-rotate-left"></i> Live updates enabled</div>
+              <button class="btn btn-outline" style="width: auto; padding: 4px 12px; height: auto; font-size: 11px; border-radius: 8px;" onclick="refreshAdminDashboard()">
+                <i class="fa-solid fa-rotate"></i> Refresh
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Reports Summary -->
+          <h2 style="font-size: 13px; margin-bottom: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Admin Controls</h2>
+          <div class="action-list" style="margin-bottom: 20px;">
+            <div class="action-item" onclick="openAdminUsersModal()" style="padding: 14px;">
+              <div class="left"><i class="fa-solid fa-users-gear" style="color: var(--color-blue)"></i> User Management</div>
+              <span style="font-size: 11px; color: var(--text-muted)">Manage Users</span>
+            </div>
+            
+            <div class="action-item" onclick="openAdminReportsModal('recharge')" style="padding: 14px;">
+              <div class="left"><i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary)"></i> Recharge Reports</div>
+              <span id="rechargeSummary" style="font-size: 11px; color: var(--primary)">₹ 0</span>
+            </div>
+
+            <div class="action-item" onclick="openGameControlModal()" style="padding: 14px;">
+              <div class="left"><i class="fa-solid fa-wand-sparkles" style="color: var(--color-violet)"></i> Game Control</div>
+              <span id="nextResultIndicator" style="font-size: 11px; background: rgba(139, 92, 246, 0.2); padding: 2px 8px; border-radius: 10px; color: var(--color-violet)">Auto</span>
+            </div>
+
+            <div class="action-item" onclick="openAdminReportsModal('withdraw')" style="padding: 14px;">
+              <div class="left"><i class="fa-solid fa-hourglass-half" style="color: var(--color-orange)"></i> Pending Withdrawals</div>
+              <span id="pendingWithdrawCount" style="font-size: 11px; background: rgba(249, 115, 22, 0.2); padding: 2px 8px; border-radius: 10px; color: var(--color-orange)">0 New</span>
+            </div>
+          </div>
+
+          <!-- Active Players Report -->
+          <div class="glass-card" style="padding: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3 style="font-size: 14px; font-weight: 600;">Latest Reports</h3>
+              <div style="font-size: 10px; color: var(--primary); background: rgba(74, 222, 128, 0.1); padding: 2px 8px; border-radius: 4px;">LIVE FEED</div>
+            </div>
+            <div style="overflow-x: auto;">
+              <table class="records-table">
+                <thead>
+                  <tr><th>Player</th><th>Balance</th><th>Status</th></tr>
+                </thead>
+                <tbody id="adminQuickUserList">
+                  <!-- Data here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= VIEW: HOME ================= -->
+      <div id="view-home" class="view-section active">
+        <header class="header"><h1>Home</h1></header>
+        <div class="content-area" style="justify-content: center; align-items: center; text-align: center;">
+          <div style="font-size: 60px; color: var(--primary); margin-bottom: 10px;"><i class="fa-solid fa-crown"></i></div>
+          <h2 style="font-size: 32px; margin-bottom: 20px; background: linear-gradient(135deg, #4ade80, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Welcome to Wingo</h2>
+          <p style="color: var(--text-muted); margin-bottom: 40px;">Experience the most premium color prediction game.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 250px; margin: 0 auto;">
+            <button id="btn-home-user-login" class="btn btn-primary" onclick="switchView('view-user-login')">
+              <i class="fa-solid fa-user"></i> User Login
+            </button>
+            <button id="btn-home-register" class="btn btn-secondary" onclick="switchView('view-user-register')">
+              <i class="fa-solid fa-user-plus"></i> Register Now
+            </button>
+            <button id="btn-home-admin-login" class="btn btn-danger" style="background: linear-gradient(135deg, #ef4444, #b91c1c);" onclick="switchView('view-admin-login')">
+              <i class="fa-solid fa-user-shield"></i> Admin Login (Control)
+            </button>
+            <button id="btn-home-play" class="btn btn-secondary" style="display: none;" onclick="switchView('view-wingo')">
+              <i class="fa-solid fa-play"></i> Play Now
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= VIEW: ACTIVITY ================= -->
+      <div id="view-activity" class="view-section">
+        <header class="header">
+          <button class="icon-btn" onclick="switchView('view-home')"><i class="fa-solid fa-chevron-left"></i></button>
+          <h1>Activity</h1>
+          <div style="width: 36px;"></div> <!-- Spacer -->
+        </header>
+        <div class="content-area">
+          <div class="glass-card">
+            <h2 style="margin-bottom: 10px">Promotions</h2>
+            <p style="color: var(--text-muted); font-size: 14px;">Invite your friends and get up to ₹1,000 bonus on their first recharge!</p>
+            <br/>
+            <button class="btn btn-secondary" onclick="showToast('Invitation link copied!')">Copy Invite Link</button>
+          </div>
+          <div class="glass-card">
+            <h2 style="margin-bottom: 10px">VIP Rewards</h2>
+            <p style="color: var(--text-muted); font-size: 14px;">Play more to upgrade your VIP level and unlock daily cashback bonuses.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= VIEW: WIN GO (GAME) ================= -->
+      <div id="view-wingo" class="view-section">
+        <header class="header">
+          <button class="icon-btn" onclick="switchView('view-home')"><i class="fa-solid fa-chevron-left"></i></button>
+          <h1>Win Go 1Min</h1>
+          <button class="icon-btn" onclick="showRulesModal()"><i class="fa-solid fa-circle-question"></i></button>
+        </header>
+        <div class="content-area">
+          <div class="glass-card balance-area">
+            <div class="balance-label"><i class="fa-solid fa-wallet"></i> Available Balance</div>
+            <div class="balance-amount"><span style="font-size: 20px;">₹</span> <span id="display-balance">45289.50</span> <button class="icon-btn" style="width: 28px; height: 28px; background: rgba(0,0,0,0.2);" onclick="updateBalanceDisplay()"><i class="fa-solid fa-rotate-right" style="font-size: 12px;"></i></button></div>
+            <div class="balance-actions">
+              <button class="btn btn-primary" onclick="showRechargeModal()"><i class="fa-solid fa-plus"></i> Recharge</button>
+              <button class="btn btn-secondary" onclick="showWithdrawModal()"><i class="fa-solid fa-money-bill-transfer"></i> Withdraw</button>
+            </div>
+          </div>
+          <div class="glass-card game-info-card">
+            <div class="period-info"><h3>Period</h3><div class="period-number" id="periodId">202603290145</div></div>
+            <div class="timer-area"><h3>Count Down</h3><div class="timer-display" id="countdown">00:45</div></div>
+          </div>
+          <div class="glass-card">
+            <div class="bet-colors">
+              <button class="color-btn green" onclick="openBetModal('Green', '#10b981')"><i class="fa-solid fa-leaf"></i> Green</button>
+              <button class="color-btn violet" onclick="openBetModal('Violet', '#8b5cf6')"><i class="fa-solid fa-gem"></i> Violet</button>
+              <button class="color-btn red" onclick="openBetModal('Red', '#ef4444')"><i class="fa-solid fa-fire"></i> Red</button>
+            </div>
+            <div class="number-grid">
+              <button class="num-btn num-0" onclick="openBetModal('Number 0', '#ef4444')">0</button>
+              <button class="num-btn num-1" onclick="openBetModal('Number 1', '#10b981')">1</button>
+              <button class="num-btn num-2" onclick="openBetModal('Number 2', '#ef4444')">2</button>
+              <button class="num-btn num-3" onclick="openBetModal('Number 3', '#10b981')">3</button>
+              <button class="num-btn num-4" onclick="openBetModal('Number 4', '#ef4444')">4</button>
+              <button class="num-btn num-5" onclick="openBetModal('Number 5', '#8b5cf6')">5</button>
+              <button class="num-btn num-6" onclick="openBetModal('Number 6', '#ef4444')">6</button>
+              <button class="num-btn num-7" onclick="openBetModal('Number 7', '#10b981')">7</button>
+              <button class="num-btn num-8" onclick="openBetModal('Number 8', '#ef4444')">8</button>
+              <button class="num-btn num-9" onclick="openBetModal('Number 9', '#10b981')">9</button>
+            </div>
+            <div class="size-options">
+              <button class="size-btn" onclick="openBetModal('Big', '#3b82f6')">Big</button>
+              <button class="size-btn" onclick="openBetModal('Small', '#f97316')">Small</button>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="records-header"><h2><i class="fa-solid fa-chart-line" style="color: var(--primary)"></i> Game Record</h2></div>
+            <table class="records-table">
+              <thead><tr><th>Period</th><th>Price</th><th>Number</th><th>Result</th></tr></thead>
+              <tbody id="game-records-body">
+                <tr><td>...0144</td><td>₹ 43,212</td><td class="result-number result-green">3</td><td><div class="dots"><div class="dot" style="background:var(--color-green)"></div></div></td></tr>
+                <tr><td>...0143</td><td>₹ 48,935</td><td class="result-number result-red">8</td><td><div class="dots"><div class="dot" style="background:var(--color-red)"></div></div></td></tr>
+                <tr><td>...0142</td><td>₹ 52,109</td><td class="result-number result-violet">0</td><td><div class="dots"><div class="dot" style="background:var(--color-red)"></div><div class="dot" style="background:var(--color-violet)"></div></div></td></tr>
+                <tr><td>...0141</td><td>₹ 39,444</td><td class="result-number result-green">7</td><td><div class="dots"><div class="dot" style="background:var(--color-green)"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= VIEW: WALLET ================= -->
+      <div id="view-wallet" class="view-section">
+        <header class="header">
+          <button class="icon-btn" onclick="switchView('view-home')"><i class="fa-solid fa-chevron-left"></i></button>
+          <h1>Wallet</h1>
+          <div style="width: 36px;"></div> <!-- Spacer -->
+        </header>
+        <div class="content-area">
+          <div class="glass-card balance-area" style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(239, 68, 68, 0.2));">
+            <div class="balance-label">Total Balance</div>
+            <div class="balance-amount"><span>₹</span> <span id="display-balance-wallet">45289.50</span></div>
+          </div>
+          <div style="display: flex; gap: 16px; margin-top: 10px;">
+            <div class="glass-card" style="flex: 1; text-align: center; cursor: pointer;" onclick="showRechargeModal()">
+              <i class="fa-solid fa-plus" style="font-size: 24px; color: var(--color-green); margin-bottom: 10px"></i>
+              <h3>Recharge</h3>
+            </div>
+            <div class="glass-card" style="flex: 1; text-align: center; cursor: pointer;" onclick="showWithdrawModal()">
+              <i class="fa-solid fa-money-bill-transfer" style="font-size: 24px; color: var(--color-blue); margin-bottom: 10px"></i>
+              <h3>Withdraw</h3>
+            </div>
+          </div>
+          <div class="glass-card" style="margin-top: 10px">
+            <h3 style="margin-bottom: 15px">Recent Transactions</h3>
+            <div class="action-list">
+              <div class="action-item">
+                <div class="left"><i class="fa-solid fa-arrow-down" style="color: var(--color-green)"></i> Recharge</div>
+                <div style="color: var(--color-green)">+ ₹5,000</div>
+              </div>
+              <div class="action-item">
+                <div class="left"><i class="fa-solid fa-arrow-up" style="color: var(--color-red)"></i> Withdraw</div>
+                <div style="color: var(--color-red)">- ₹1,200</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= VIEW: ACCOUNT ================= -->
+      <div id="view-account" class="view-section">
+        <header class="header">
+          <button class="icon-btn" onclick="switchView('view-home')"><i class="fa-solid fa-chevron-left"></i></button>
+          <h1>Account</h1>
+          <div style="width: 36px;"></div> <!-- Spacer -->
+        </header>
+        <div class="content-area">
+          <div class="glass-card" style="margin-top: 20px; cursor: pointer; position: relative;" onclick="showProfileModal()">
+            <div style="position: absolute; right: 20px; top: 20px; color: var(--text-muted);"><i class="fa-solid fa-pen-to-square"></i></div>
+            <div class="avatar-wrapper"><i class="fa-solid fa-user"></i></div>
+            <div class="profile-info">
+              <h2 id="accountUserName">Player_8942</h2>
+              <p>ID: 8942110</p>
+              <p>Mobile: <span id="accountMobile">+91 98****3210</span></p>
+            </div>
+          </div>
+          <div class="action-list" style="margin-top: 10px;">
+            <div class="action-item" onclick="showSecurityModal()">
+              <div class="left"><i class="fa-solid fa-shield-halved" style="color: var(--color-blue)"></i> Security Info</div>
+              <i class="fa-solid fa-chevron-right" style="color: var(--text-muted)"></i>
+            </div>
+            <div class="action-item" onclick="showBankCardsModal()">
+              <div class="left"><i class="fa-solid fa-credit-card" style="color: var(--color-orange)"></i> Bank Cards</div>
+              <i class="fa-solid fa-chevron-right" style="color: var(--text-muted)"></i>
+            </div>
+            <div class="action-item" onclick="showRulesModal()">
+              <div class="left"><i class="fa-solid fa-book" style="color: var(--primary)"></i> Game Rules</div>
+              <i class="fa-solid fa-chevron-right" style="color: var(--text-muted)"></i>
+            </div>
+            <div class="action-item" onclick="logoutUser()">
+              <div class="left"><i class="fa-solid fa-right-from-bracket" style="color: var(--color-red)"></i> Logout</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav" id="bottom-nav">
+        <a class="nav-item nav-view-home" onclick="switchView('view-home')"><i class="fa-solid fa-house"></i><span>Home</span></a>
+        <a class="nav-item nav-view-activity" onclick="switchView('view-activity')"><i class="fa-solid fa-gamepad"></i><span>Activity</span></a>
+        <a class="nav-item nav-view-wingo" onclick="switchView('view-wingo')"><i class="fa-solid fa-trophy"></i><span>Win Go</span></a>
+        <a class="nav-item nav-view-wallet" onclick="switchView('view-wallet')"><i class="fa-solid fa-wallet"></i><span>Wallet</span></a>
+        <a class="nav-item nav-view-account" onclick="switchView('view-account')"><i class="fa-solid fa-user"></i><span>Account</span></a>
+      </nav>
+      
+      <!-- Modals -->
+      <!-- Betting Modal -->
+      <div id="betModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header" id="betModalHeader">Select Option</div>
+          <div class="modal-body">
+            <p style="color: var(--text-muted); margin-bottom: 12px; font-size: 14px;">Select Bet Amount</p>
+            <div class="bet-amount-options">
+              <button class="bet-amt-btn active" onclick="setBetBase(10)">10</button>
+              <button class="bet-amt-btn" onclick="setBetBase(100)">100</button>
+              <button class="bet-amt-btn" onclick="setBetBase(1000)">1000</button>
+              <button class="bet-amt-btn" onclick="setBetBase(10000)">10000</button>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 12px; font-size: 14px;">Quantity</p>
+            <div class="qty-control">
+              <button class="qty-btn" onclick="changeQty(-1)">-</button>
+              <span class="qty-value" id="betQty">1</span>
+              <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+            <div class="total-bet">
+              <span>Total Bet Amount</span>
+              <span id="betTotal">₹ 10</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('betModal')">Cancel</button>
+            <button class="modal-btn confirm" onclick="confirmBet()">Confirm</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recharge Modal -->
+      <div id="rechargeModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header" style="background: rgba(16, 185, 129, 0.2)">Recharge Account</div>
+          <div class="modal-body">
+            <div class="input-group">
+              <label>Amount (₹)</label>
+              <input type="number" id="rechargeAmount" placeholder="Enter amount..." value="1000">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('rechargeModal')">Cancel</button>
+            <button class="modal-btn confirm" style="color: var(--color-green)" onclick="processRecharge()">Pay Now</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Withdraw Modal -->
+      <div id="withdrawModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header" style="background: rgba(59, 130, 246, 0.2)">Withdraw Funds</div>
+          <div class="modal-body">
+            <div class="input-group">
+              <label>Amount (₹)</label>
+              <input type="number" id="withdrawAmount" placeholder="Enter amount..." value="">
+            </div>
+            <div class="input-group">
+              <label>Bank Card</label>
+              <input type="text" disabled value="State Bank... **3941">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('withdrawModal')">Cancel</button>
+            <button class="modal-btn confirm" style="color: var(--color-blue)" onclick="processWithdraw()">Withdraw</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Modal -->
+      <div id="profileModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header">Edit Profile</div>
+          <div class="modal-body">
+            <div class="input-group">
+              <label>Nickname</label>
+              <input type="text" id="editNickname" value="Player_8942">
+            </div>
+            <div class="input-group">
+              <label>Gender</label>
+              <select style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; color: white; width: 100%; outline: none;" id="editGender">
+                <option value="Not Set" style="color: black;">Not Set</option>
+                <option value="Male" style="color: black;">Male</option>
+                <option value="Female" style="color: black;">Female</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('profileModal')">Cancel</button>
+            <button class="modal-btn confirm" onclick="saveProfile()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Modal -->
+      <div id="securityModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header" style="background: rgba(59, 130, 246, 0.2)">Security Center</div>
+          <div class="modal-body">
+            <div class="input-group">
+              <label>Old Password</label>
+              <input type="password" placeholder="Enter current password">
+            </div>
+            <div class="input-group">
+              <label>New Password</label>
+              <input type="password" placeholder="Create new password">
+            </div>
+            <div class="input-group">
+              <label>Confirm Password</label>
+              <input type="password" placeholder="Confirm new password">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('securityModal')">Cancel</button>
+            <button class="modal-btn confirm" style="color: var(--color-blue)" onclick="changePassword()">Update Password</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bank Cards List Modal -->
+      <div id="bankCardsListModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header" style="background: rgba(249, 115, 22, 0.2)">My Bank Cards</div>
+          <div class="modal-body" id="savedCardsBody">
+            <div id="savedCardsList" style="display:flex; flex-direction:column; gap:10px; margin-bottom: 20px;">
+              <div class="glass-card" style="padding: 15px; border-color: rgba(255,255,255,0.1)">
+                <div style="color: var(--text-muted); font-size: 12px;">State Bank of India</div>
+                <div style="font-size: 18px; letter-spacing: 2px; margin: 8px 0;">**** **** **** 3941</div>
+                <div style="color: var(--primary); font-size: 12px; display:flex; justify-content:space-between">
+                  <span>AJAY KUMAR</span>
+                  <i class="fa-solid fa-check-circle"></i>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-outline" style="width: 100%" onclick="closeModal('bankCardsListModal'); document.getElementById('bankCardModal').classList.add('show');"><i class="fa-solid fa-plus"></i> Add New Bank Card</button>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('bankCardsListModal')">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Bank Card Modal -->
+      <div id="bankCardModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header" style="background: rgba(249, 115, 22, 0.2)">Add Bank Card</div>
+          <div class="modal-body">
+            <div class="input-group">
+              <label>Bank Name</label>
+              <input type="text" id="newCardBank" placeholder="e.g. HDFC Bank">
+            </div>
+            <div class="input-group">
+              <label>Cardholder Name</label>
+              <input type="text" id="newCardName" placeholder="Enter Name">
+            </div>
+            <div class="input-group">
+              <label>Card Number</label>
+              <input type="number" id="newCardNum" placeholder="Enter 16 Digit Card">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('bankCardModal'); showBankCardsModal();">Cancel</button>
+            <button class="modal-btn confirm" style="color: var(--color-orange)" onclick="addBankCard()">Add Card</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rules Modal -->
+      <div id="rulesModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header" style="background: rgba(139, 92, 246, 0.2)">Game Rules</div>
+          <div class="modal-body" style="text-align: left; max-height: 300px; overflow-y: auto;">
+            <p style="margin-bottom: 10px; font-size: 14px; line-height: 1.5;">1. 1 minute per round. 45 seconds to order, 15 seconds to show results.</p>
+            <p style="margin-bottom: 10px; font-size: 14px; line-height: 1.5;">2. Select Green: if the result shows 1,3,7,9, you will get (2x) reward. If 5 shows, you will get (1.5x) reward.</p>
+            <p style="margin-bottom: 10px; font-size: 14px; line-height: 1.5;">3. Select Red: if the result shows 2,4,6,8, you will get (2x) reward. If 0 shows, you will get (1.5x) reward.</p>
+            <p style="margin-bottom: 10px; font-size: 14px; line-height: 1.5;">4. Select Violet: if the result shows 0 or 5, you will get (4.5x) reward.</p>
+            <p style="font-size: 14px; line-height: 1.5;">5. Select Number: if the result is the same as the number you selected, you will get (9x) reward.</p>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn confirm" style="flex: 1; border: none; color: white;" onclick="closeModal('rulesModal')">I Understand</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin: Users Modal -->
+      <div id="adminUsersModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+          <div class="modal-header" style="background: rgba(59, 130, 246, 0.2)">User Management</div>
+          <div class="modal-body" style="max-height: 400px; overflow-y: auto; padding: 10px;">
+            <div id="adminUserList" style="display: flex; flex-direction: column; gap: 10px;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('adminUsersModal')">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin: Reports Modal -->
+      <div id="adminReportsModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+          <div class="modal-header" id="adminReportsHeader">Reports</div>
+          <div class="modal-body" style="max-height: 400px; overflow-y: auto; padding: 10px;">
+            <table class="records-table">
+              <thead id="adminReportsTableHead"></thead>
+              <tbody id="adminReportsTableBody"></tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('adminReportsModal')">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin: Game Control Modal -->
+      <div id="adminGameControlModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header" style="background: rgba(139, 92, 246, 0.2)">Manual Result Selector</div>
+          <div class="modal-body">
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px; text-align: center;">Choose the result for the NEXT period. <br/>Current selection: <span id="adminPendingResult" style="color: var(--color-violet); font-weight: bold;">Auto</span></p>
+            <div class="number-grid">
+              <button class="num-btn num-0" onclick="setNextResult(0)">0</button>
+              <button class="num-btn num-1" onclick="setNextResult(1)">1</button>
+              <button class="num-btn num-2" onclick="setNextResult(2)">2</button>
+              <button class="num-btn num-3" onclick="setNextResult(3)">3</button>
+              <button class="num-btn num-4" onclick="setNextResult(4)">4</button>
+              <button class="num-btn num-5" onclick="setNextResult(5)">5</button>
+              <button class="num-btn num-6" onclick="setNextResult(6)">6</button>
+              <button class="num-btn num-7" onclick="setNextResult(7)">7</button>
+              <button class="num-btn num-8" onclick="setNextResult(8)">8</button>
+              <button class="num-btn num-9" onclick="setNextResult(9)">9</button>
+            </div>
+            <button class="btn btn-outline" style="margin-top: 15px;" onclick="setNextResult(null)">Reset to Auto</button>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn confirm" style="flex: 1;" onclick="closeModal('adminGameControlModal')">Done</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OTP Modal -->
+      <div id="otpModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header" style="background: rgba(16, 185, 129, 0.2)">Verify Email OTP</div>
+          <div class="modal-body">
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px; text-align: center;">An OTP has been sent to your Gmail account. Please enter it below to complete registration.</p>
+            <div class="input-group">
+              <label>Enter 6-digit OTP</label>
+              <input type="number" id="registerOtpInput" placeholder="e.g. 123456" style="text-align: center; font-size: 24px; letter-spacing: 4px;">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeModal('otpModal')">Cancel</button>
+            <button class="modal-btn confirm" style="color: var(--color-green)" onclick="verifyRegistrationOTP()">Verify & Register</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Alert -->
+      <div id="toast" class="toast">Success!</div>
+
+    </div>
+
+    <script>
+      // ================= ENVIRONMENT & API =================
+      const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '';
+      // Defaulting to 127.0.0.1 for more consistent local fetch behavior than 'localhost'
+      const API_URL = IS_LOCAL ? 'http://127.0.0.1:3001' : 'https://YOUR_BACKEND_URL.onrender.com';
+      console.log(`Wingo Status: ${IS_LOCAL ? 'LOCAL' : 'CLOUD'} | API Environment: ${API_URL}`);
+
+      // ================= SOCKET.IO =================
+      const socket = io(API_URL);
+      socket.on('connect', () => console.log('Live Server Connected!'));
+      
+      socket.on('timerUpdate', (data) => {
+        timeLeft = data.timer;
+        currentPeriod = parseInt(data.periodId);
+        
+        // Update UI
+        document.getElementById('periodId').innerText = currentPeriod;
+        const timeDisplay = document.getElementById('countdown');
+        const seconds = timeLeft < 10 ? '0' + timeLeft : timeLeft;
+        if(timeDisplay) {
+           timeDisplay.innerText = '00:' + seconds;
+           if(timeLeft <= 5) {
+             timeDisplay.style.color = '#ef4444'; 
+           } else {
+             timeDisplay.style.color = 'var(--primary)';
+           }
+        }
+      });
+
+      socket.on('gameResult', (data) => {
+        console.log("Game Result Received!", data);
+        updateHistoryFromServer();
+        // Check local bets
+        processLocalWinning(data.number);
+      });
+
+      // ================= STATE =================
+      let userToken = localStorage.getItem('wingo_token');
+      let userData = JSON.parse(localStorage.getItem('wingo_user')) || {};
+      let userBalance = userData.balance || 45289.50;
+      let timeLeft = 60;
+      let currentPeriod = "---";
+      
+      // Bet State
+      let selectedBetType = '';
+      let betBaseAmount = 10;
+      let betQuantity = 1;
+      let activeBets = []; // Array to hold user's bets for the current period
+      
+      // Admin Controls State
+      let adminNextResult = null; // If set, this will be the next game result
+      let adminUsers = [
+        { id: '8942110', name: 'Player_8942', mobile: '9876543210', balance: 45289.50, status: 'Online' },
+        { id: '9900123', name: 'Ajay_99', mobile: '9988776655', balance: 15200.00, status: 'Online' },
+        { id: '0100456', name: 'Shyam_01', mobile: '8877665544', balance: 8450.00, status: 'Online' },
+        { id: '2200789', name: 'Ravi_22', mobile: '7766554433', balance: 450.00, status: 'Offline' },
+        { id: '0700111', name: 'Priya_7', mobile: '6655443322', balance: 22100.00, status: 'Online' }
+      ];
+      let adminRecharges = [
+        { user: 'Ajay_99', amount: 5000, date: '2026-03-30 14:20', status: 'Success' },
+        { user: 'Priya_7', amount: 10000, date: '2026-03-30 15:10', status: 'Success' }
+      ];
+      let adminWithdrawals = [
+        { id: 'W-001', user: 'Shyam_01', amount: 1200, status: 'Pending' },
+        { id: 'W-002', user: 'Ravi_22', amount: 500, status: 'Pending' }
+      ];
+
+      // ================= UTILS =================
+      function formatMoney(amount) { return amount.toFixed(2); }
+      function updateBalanceDisplay() {
+        document.getElementById('display-balance').innerText = formatMoney(userBalance);
+        document.getElementById('display-balance-wallet').innerText = formatMoney(userBalance);
+      }
+      
+      function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        toast.className = 'toast show ' + (isError ? 'error' : '');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+      }
+
+      function switchView(viewId) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        
+        const newView = document.getElementById(viewId);
+        if(newView) newView.classList.add('active');
+        
+        const navItem = document.querySelector('.nav-' + viewId);
+        if(navItem) navItem.classList.add('active');
+      }
+
+      function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+      // ================= AUTH =================
+      let tempRegData = {};
+
+      async function initiateRegistration() {
+        const name = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const phone = document.getElementById('regPhone').value;
+        const password = document.getElementById('regPassword').value;
+        const upi_id = document.getElementById('regUPI').value;
+        const ifsc_code = document.getElementById('regIFSC').value;
+        const bank_holder_name = document.getElementById('regBankHolder').value;
+
+        if(!name || !email || !password || !phone) return showToast('Please fill essential fields', true);
+
+        const payload = { name, email, phone, password, upi_id, ifsc_code, bank_holder_name };
+        
+        showToast('Processing registration...');
+        try {
+          const res = await fetch(`${API_URL}/api/auth/signup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if(data.error) throw new Error(data.error);
+
+          showToast('Account created! Please login.');
+          setTimeout(() => switchView('view-user-login'), 1500);
+        } catch(err) {
+          console.error("Signup Fetch Error:", err);
+          const msg = err.message === "Failed to fetch" 
+            ? "Sync Error: Please ensure backend server is running at " + API_URL 
+            : err.message;
+          showToast(msg, true);
+        }
+      }
+
+      function verifyRegistrationOTP() {
+        // Simplified for this version since signup API is direct
+        closeModal('otpModal');
+        initiateRegistration(); 
+      }
+      async function loginUser() {
+        const email = document.getElementById('loginMobile').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        try {
+          const res = await fetch(`${API_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          const data = await res.json();
+          if(data.error) throw new Error(data.error);
+
+          localStorage.setItem('wingo_token', data.token);
+          localStorage.setItem('wingo_user', JSON.stringify(data.user));
+          userData = data.user;
+          userBalance = data.user.balance;
+
+          // Update Account View UI
+          document.getElementById('accountUserName').innerText = data.user.name;
+          document.getElementById('accountMobile').innerText = data.user.phone || 'N/A';
+          
+          document.getElementById('bottom-nav').style.display = 'flex';
+          
+          // Home View update
+          document.getElementById('btn-home-user-login').style.display = 'none';
+          document.getElementById('btn-home-register').style.display = 'none';
+          document.getElementById('btn-home-admin-login').style.display = 'none';
+          document.getElementById('btn-home-play').style.display = 'flex';
+          
+          switchView('view-wingo');
+          showToast('Login successful!');
+          updateBalanceDisplay();
+          updateHistoryFromServer();
+        } catch(err) {
+          console.error("Login Fetch Error:", err);
+          const msg = err.message === "Failed to fetch" 
+            ? "Connection Refused: Start backend on port 3001" 
+            : err.message;
+          showToast(msg, true);
+        }
+      }
+
+      function loginAdmin() {
+        const u = document.getElementById('adminUsername').value;
+        const p = document.getElementById('adminPassword').value;
+
+        const authorizedAdmins = [
+          { user: 'ajay@651', pass: 'ajay@651' },
+          { user: 'shyam@651', pass: 'shyam@651' }
+        ];
+
+        const isAdmin = authorizedAdmins.find(admin => admin.user === u && admin.pass === p);
+
+        if (isAdmin) {
+          showToast('Admin verified! Welcome, ' + u.split('@')[0]);
+          setTimeout(() => {
+            document.getElementById('bottom-nav').style.display = 'none';
+            switchView('view-admin-dashboard');
+          }, 800);
+        } else {
+          showToast('invalid user please use the user account', true);
+        }
+      }
+
+      function logoutUser() {
+        localStorage.removeItem('wingo_token');
+        localStorage.removeItem('wingo_user');
+        
+        document.getElementById('bottom-nav').style.display = 'none';
+        
+        // Reset home buttons for logged out user
+        document.getElementById('btn-home-user-login').style.display = 'flex';
+        document.getElementById('btn-home-register').style.display = 'flex';
+        document.getElementById('btn-home-admin-login').style.display = 'flex';
+        document.getElementById('btn-home-play').style.display = 'none';
+        
+        switchView('view-home');
+        showToast('You have been safely logged out.');
+      }
+
+      // ================= ACCOUNT SETTINGS =================
+      function showProfileModal() { document.getElementById('profileModal').classList.add('show'); }
+      function saveProfile() {
+        const newName = document.getElementById('editNickname').value;
+        if(newName) document.getElementById('accountUserName').innerText = newName;
+        closeModal('profileModal');
+        showToast('Profile updated successfully.');
+      }
+      
+      function showSecurityModal() { document.getElementById('securityModal').classList.add('show'); }
+      function changePassword() {
+        closeModal('securityModal');
+        showToast('Security settings updated successfully.');
+      }
+
+      function showBankCardsModal() { document.getElementById('bankCardsListModal').classList.add('show'); }
+      function addBankCard() {
+        const bank = document.getElementById('newCardBank').value || 'New Bank';
+        const name = document.getElementById('newCardName').value || 'USER';
+        const num = document.getElementById('newCardNum').value || '1234';
+        const last4 = num.toString().slice(-4);
+        
+        const newCardHTML = `
+          <div class="glass-card" style="padding: 15px; border-color: rgba(255,255,255,0.1)">
+            <div style="color: var(--text-muted); font-size: 12px;">${bank}</div>
+            <div style="font-size: 18px; letter-spacing: 2px; margin: 8px 0;">**** **** **** ${last4}</div>
+            <div style="color: var(--primary); font-size: 12px; display:flex; justify-content:space-between">
+              <span>${name.toUpperCase()}</span>
+              <i class="fa-solid fa-check-circle"></i>
+            </div>
+          </div>`;
+          
+        document.getElementById('savedCardsList').insertAdjacentHTML('beforeend', newCardHTML);
+        
+        closeModal('bankCardModal');
+        showToast('New bank card successfully added.');
+        setTimeout(() => showBankCardsModal(), 200); // go back to list
+      }
+      function showRulesModal() { document.getElementById('rulesModal').classList.add('show'); }
+
+      // ================= WALLET =================
+      function showRechargeModal() { document.getElementById('rechargeModal').classList.add('show'); }
+      function processRecharge() {
+        const amt = parseFloat(document.getElementById('rechargeAmount').value);
+        if(isNaN(amt) || amt <= 0) return showToast('Enter valid amount', true);
+        userBalance += amt;
+        updateBalanceDisplay();
+        closeModal('rechargeModal');
+        showToast(`Successfully recharged ₹${amt}`);
+      }
+
+      function showWithdrawModal() { document.getElementById('withdrawModal').classList.add('show'); }
+      function processWithdraw() {
+        const amt = parseFloat(document.getElementById('withdrawAmount').value);
+        if(isNaN(amt) || amt <= 0) return showToast('Enter valid amount', true);
+        if(amt > userBalance) return showToast('Insufficient balance', true);
+        userBalance -= amt;
+        updateBalanceDisplay();
+        closeModal('withdrawModal');
+        showToast(`Withdrawal request of ₹${amt} submitted.`);
+        document.getElementById('withdrawAmount').value = '';
+      }
+
+      // ================= BETTING LOGIC =================
+      function openBetModal(type, color) {
+        if(timeLeft <= 5) return showToast('Time is up, wait for next period!', true);
+        selectedBetType = type;
+        betBaseAmount = 10; betQuantity = 1;
+        document.getElementById('betModalHeader').innerText = `Select ${type}`;
+        document.getElementById('betModalHeader').style.backgroundColor = color;
+        updateBetDisplay();
+        document.getElementById('betModal').classList.add('show');
+      }
+
+      function setBetBase(amt) {
+        betBaseAmount = amt;
+        document.querySelectorAll('.bet-amt-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        updateBetDisplay();
+      }
+
+      function changeQty(delta) {
+        if(betQuantity + delta >= 1) { betQuantity += delta; updateBetDisplay(); }
+      }
+
+      function updateBetDisplay() {
+        document.getElementById('betQty').innerText = betQuantity;
+        document.getElementById('betTotal').innerText = `₹ ${betBaseAmount * betQuantity}`;
+      }
+
+      function confirmBet() {
+        const total = betBaseAmount * betQuantity;
+        if(total > userBalance) {
+          closeModal('betModal'); return showToast('Insufficient Balance!', true);
+        }
+        userBalance -= total;
+        updateBalanceDisplay();
+        activeBets.push({ type: selectedBetType, amount: total });
+        
+        closeModal('betModal');
+        showToast(`Bet placed on ${selectedBetType} for ₹${total}`);
+      }
+
+      async function updateHistoryFromServer() {
+        try {
+          const res = await fetch(`${API_URL}/api/history`);
+          const data = await res.json();
+          const tbody = document.getElementById('game-records-body');
+          tbody.innerHTML = data.map(r => {
+            const colors = r.resultColor.split('/');
+            const dotHTML = colors.map(c => `<div class="dot" style="background:var(--color-${c.toLowerCase()})"></div>`).join('');
+            return `<tr>
+              <td>...${r.periodId.slice(-4)}</td>
+              <td>₹ ${Math.floor(Math.random()*40000)+10000}</td>
+              <td class="result-number result-${colors[0].toLowerCase()}">${r.resultNumber}</td>
+              <td><div class="dots">${dotHTML}</div></td>
+            </tr>`;
+          }).join('');
+        } catch(e) {}
+      }
+
+      function processLocalWinning(resultNumber) {
+        let winnings = 0;
+        activeBets.forEach(bet => {
+          let won = false; let multiplier = 0;
+          if(bet.type === 'Green' && [1,3,7,9,5].includes(resultNumber)) { won = true; multiplier = resultNumber===5 ? 1.5 : 2; }
+          if(bet.type === 'Red' && [0,2,4,6,8].includes(resultNumber)) { won = true; multiplier = resultNumber===0 ? 1.5 : 2; }
+          if(bet.type === 'Violet' && [0,5].includes(resultNumber)) { won = true; multiplier = 4.5; }
+          if(bet.type === `Number ${resultNumber}`) { won = true; multiplier = 9; }
+          if(bet.type === (resultNumber >= 5 ? 'Big' : 'Small')) { won = true; multiplier = 2; }
+
+          if(won) winnings += (bet.amount * multiplier);
+        });
+
+        if(winnings > 0) {
+          userBalance += winnings; updateBalanceDisplay();
+          showToast(`Period Result: ${resultNumber}. You Won ₹${formatMoney(winnings)}!`);
+        } else if(activeBets.length > 0) {
+          showToast(`Period Result: ${resultNumber}. Next time!`, true);
+        }
+        activeBets = [];
+      }
+
+      // Remove the old local setInterval game loop since we now have Socket.io incoming data
+
+      function processGameResult() {
+        let resultNumber;
+        if (adminNextResult !== null) {
+          resultNumber = adminNextResult;
+          adminNextResult = null; // Reset after use
+          showToast('Game result processed using Admin Control.');
+        } else {
+          resultNumber = Math.floor(Math.random() * 10);
+        }
+        
+        // Determine color
+        let resultColor = 'red'; let resultColorsStr = 'Red'; let dotHTML = `<div class="dot" style="background:var(--color-red)"></div>`;
+        if([1,3,7,9].includes(resultNumber)) { resultColor = 'green'; resultColorsStr = 'Green'; dotHTML = `<div class="dot" style="background:var(--color-green)"></div>`; }
+        if(resultNumber === 0) { resultColor = 'violet'; resultColorsStr = 'Red, Violet'; dotHTML = `<div class="dot" style="background:var(--color-red)"></div><div class="dot" style="background:var(--color-violet)"></div>`; }
+        if(resultNumber === 5) { resultColor = 'violet'; resultColorsStr = 'Green, Violet'; dotHTML = `<div class="dot" style="background:var(--color-green)"></div><div class="dot" style="background:var(--color-violet)"></div>`; }
+        
+        const isBig = resultNumber >= 5 ? 'Big' : 'Small';
+
+        // Check user bets
+        let winnings = 0;
+        activeBets.forEach(bet => {
+          let won = false; let multiplier = 0;
+          if(bet.type === 'Green' && [1,3,7,9,5].includes(resultNumber)) { won = true; multiplier = resultNumber===5 ? 1.5 : 2; }
+          if(bet.type === 'Red' && [0,2,4,6,8].includes(resultNumber)) { won = true; multiplier = resultNumber===0 ? 1.5 : 2; }
+          if(bet.type === 'Violet' && [0,5].includes(resultNumber)) { won = true; multiplier = 4.5; }
+          if(bet.type === `Number ${resultNumber}`) { won = true; multiplier = 9; }
+          if(bet.type === isBig) { won = true; multiplier = 2; }
+
+          if(won) winnings += (bet.amount * multiplier);
+        });
+
+        if(winnings > 0) {
+          userBalance += winnings; updateBalanceDisplay();
+          showToast(`Period ${currentPeriod} Result: ${resultNumber}. You Won ₹${formatMoney(winnings)}!`);
+        } else if(activeBets.length > 0) {
+          showToast(`Period ${currentPeriod} Result: ${resultNumber}. You lost your bet.`, true);
+        }
+
+        activeBets = []; // reset bets
+
+        // Prepend result to table
+        const tbody = document.getElementById('game-records-body');
+        const priceMock = "₹ " + (Math.floor(Math.random()*40000) + 10000);
+        const newRow = `<tr>
+          <td>...${currentPeriod.toString().slice(-4)}</td>
+          <td>${priceMock}</td>
+          <td class="result-number result-${resultColor}">${resultNumber}</td>
+          <td><div class="dots">${dotHTML}</div></td>
+        </tr>`;
+        tbody.innerHTML = newRow + tbody.innerHTML;
+        // Keep only top 10
+        if(tbody.children.length > 10) tbody.removeChild(tbody.lastChild);
+      }
+      
+      // ================= ADMIN CONSOLE LOGIC =================
+      function refreshAdminDashboard() {
+        // Calculations
+        const totalUsers = adminUsers.length;
+        const activeUsersCount = adminUsers.filter(u => u.status === 'Online').length;
+        const totalRechargeAmt = adminRecharges.reduce((acc, curr) => acc + curr.amount, 0);
+        const totalWithdrawApproved = adminWithdrawals.filter(w => w.status === 'Approved').reduce((acc, curr) => acc + curr.amount, 0);
+        const revenue = totalRechargeAmt - totalWithdrawApproved;
+        const pendingWithdrawCount = adminWithdrawals.filter(w => w.status === 'Pending').length;
+
+        // UI Updates
+        document.getElementById('adminTotalUsers').innerText = totalUsers;
+        document.getElementById('adminActiveUsers').innerText = activeUsersCount;
+        document.getElementById('adminRevenue').innerText = `₹ ${formatMoney(revenue)}`;
+        document.getElementById('rechargeSummary').innerText = `₹ ${formatMoney(totalRechargeAmt)}`;
+        document.getElementById('pendingWithdrawCount').innerText = `${pendingWithdrawCount} New`;
+        
+        const tbody = document.getElementById('adminQuickUserList');
+        tbody.innerHTML = adminUsers.slice(0, 5).map(u => `
+          <tr>
+            <td style="font-weight: 500;">${u.name}</td>
+            <td style="color: var(--primary); font-weight: 600;">₹ ${formatMoney(u.balance)}</td>
+            <td><span class="dot" style="display:inline-block; width:8px; height:8px; background:${u.status === 'Online' ? 'var(--primary)' : 'var(--text-muted)'}; border-radius:50%; margin-right:4px;"></span><span style="font-size:11px; color: ${u.status === 'Online' ? 'var(--primary)' : 'var(--text-muted)'}">${u.status}</span></td>
+          </tr>
+        `).join('');
+        
+        showToast('Dashboard details updated live.');
+      }
+
+      function openAdminUsersModal() {
+        const list = document.getElementById('adminUserList');
+        list.innerHTML = adminUsers.map(u => `
+          <div class="glass-card" style="padding: 12px; border-color: rgba(255,255,255,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <div style="font-weight: bold; font-size: 15px;">${u.name} <span style="font-size: 10px; color: var(--text-muted); font-weight: normal;">ID: ${u.id}</span></div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Mob: ${u.mobile}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="color: var(--primary); font-weight: bold;">₹ ${formatMoney(u.balance)}</div>
+                <div style="font-size: 10px; color: ${u.status === 'Online' ? 'var(--primary)' : 'var(--text-muted)'}">${u.status}</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+              <button class="btn btn-outline" style="padding: 4px; font-size: 11px;" onclick="adjustUserBalance('${u.id}', 1000)">+ ₹1k</button>
+              <button class="btn btn-outline" style="padding: 4px; font-size: 11px; border-color: var(--color-red); color: var(--color-red);" onclick="adjustUserBalance('${u.id}', -1000)">- ₹1k</button>
+              <button class="btn btn-secondary" style="padding: 4px; font-size: 11px;" onclick="showToast('User ${u.name} details opened')">Details</button>
+            </div>
+          </div>
+        `).join('');
+        document.getElementById('adminUsersModal').classList.add('show');
+      }
+
+      function adjustUserBalance(userId, delta) {
+        const user = adminUsers.find(u => u.id === userId);
+        if (user) {
+          user.balance += delta;
+          if (userId === '8942110') { userBalance = user.balance; updateBalanceDisplay(); }
+          openAdminUsersModal();
+          showToast(`Balance updated for ${user.name}`);
+        }
+      }
+
+      function openAdminReportsModal(type) {
+        const header = document.getElementById('adminReportsHeader');
+        const thead = document.getElementById('adminReportsTableHead');
+        const tbody = document.getElementById('adminReportsTableBody');
+        
+        if (type === 'recharge') {
+          header.innerText = 'Recharge Reports';
+          header.style.background = 'rgba(16, 185, 129, 0.2)';
+          thead.innerHTML = '<tr><th>User</th><th>Amount</th><th>Date</th></tr>';
+          tbody.innerHTML = adminRecharges.map(r => `
+            <tr><td>${r.user}</td><td>₹ ${r.amount}</td><td style="font-size: 10px;">${r.date}</td></tr>
+          `).join('');
+        } else {
+          header.innerText = 'Withdrawal Reports';
+          header.style.background = 'rgba(249, 115, 22, 0.2)';
+          thead.innerHTML = '<tr><th>User</th><th>Amount</th><th>Status</th></tr>';
+          tbody.innerHTML = adminWithdrawals.map(w => `
+            <tr>
+              <td>${w.user}</td>
+              <td>₹ ${w.amount}</td>
+              <td>
+                ${w.status === 'Pending' 
+                  ? `<button class="btn btn-primary" style="padding: 4px; font-size: 10px; width: auto;" onclick="approveWithdraw('${w.id}')">Approve</button>` 
+                  : `<span style="color: var(--primary)">Success</span>`}
+              </td>
+            </tr>
+          `).join('');
+        }
+        document.getElementById('adminReportsModal').classList.add('show');
+      }
+
+      function approveWithdraw(id) {
+        const w = adminWithdrawals.find(x => x.id === id);
+        if (w) {
+          w.status = 'Approved';
+          showToast(`Withdrawal of ₹${w.amount} approved for ${w.user}`);
+          openAdminReportsModal('withdraw');
+          refreshAdminDashboard();
+        }
+      }
+
+      function openGameControlModal() {
+        document.getElementById('adminPendingResult').innerText = adminNextResult === null ? 'Auto' : adminNextResult;
+        document.getElementById('adminGameControlModal').classList.add('show');
+      }
+
+      function setNextResult(val) {
+        adminNextResult = val;
+        document.getElementById('adminPendingResult').innerText = val === null ? 'Auto' : val;
+        const indicator = document.getElementById('nextResultIndicator');
+        if (val === null) {
+          indicator.innerText = 'Auto';
+          indicator.style.color = 'var(--color-violet)';
+          indicator.style.background = 'rgba(139, 92, 246, 0.2)';
+        } else {
+          indicator.innerText = 'Manual: ' + val;
+          indicator.style.color = 'var(--color-red)';
+          indicator.style.background = 'rgba(239, 68, 68, 0.2)';
+        }
+        showToast(val === null ? 'Game reset to auto-results' : 'Next game result set to ' + val);
+      }
+
+      // Initialize
+      function bootApp() {
+        updateBalanceDisplay();
+        refreshAdminDashboard();
+        
+        const existingToken = localStorage.getItem('wingo_token');
+        const existingUser = JSON.parse(localStorage.getItem('wingo_user') || 'null');
+        
+        if(existingToken && existingUser) {
+           userData = existingUser;
+           userBalance = existingUser.balance;
+           
+           document.getElementById('btn-home-user-login').style.display = 'none';
+           document.getElementById('btn-home-register').style.display = 'none';
+           document.getElementById('btn-home-play').style.display = 'flex';
+           
+           // Update account UI
+           document.getElementById('accountUserName').innerText = existingUser.name;
+           document.getElementById('accountMobile').innerText = existingUser.phone || 'N/A';
+           
+           updateBalanceDisplay();
+           updateHistoryFromServer();
+        }
+      }
+      
+      bootApp();
+    </script>
+  </body>
+</html>
